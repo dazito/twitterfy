@@ -98,9 +98,9 @@
                     <!-- JDBC connection parameters -->
                     <jdbc>
                         <driver>com.mysql.cj.jdbc.Driver</driver>
-                        <url>jdbc:mysql://localhost:3306/twitterfy?useSSL=false</url>
-                        <user>twitterfy</user>
-                        <password>plmtwitterfy</password>
+                        <url>jdbc:mysql://your-database-server-ip:server-port/database-name</url>
+                        <user>your-username</user>
+                        <password>your-password</password>
                     </jdbc>
 
                     <!-- Generator parameters -->
