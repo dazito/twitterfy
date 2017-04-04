@@ -1,14 +1,21 @@
 # twitterfy
-Get subscribe to and get notified when someone tweets your keywords
+Get subscribe to and get notified when someone tweets your keywords.
 
-Work in progress.
+Using:
+ - Java 8
+ - JOOQ with MySQL
+ - Twitter4J - Twitter API client
+ - Akka Framework
 
+This is a work in progress.
+
+# How to run
 1- Edit the following files with your configuration details:
   - configuration.properties
   - /jooq/jooq.xml
   - pom.xml
 
-Run main.
+Run Main.class
 
 Next features:
   - Run on a docker container
