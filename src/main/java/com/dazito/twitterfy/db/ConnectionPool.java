@@ -1,5 +1,6 @@
 package com.dazito.twitterfy.db;
 
+import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -15,10 +16,12 @@ public class ConnectionPool {
     private final HikariDataSource dataSource;
 
     private ConnectionPool() {
+        final TwitterfyConfiguration configuration = TwitterfyConfiguration.getConfiguration();
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://your-database-server-ip:port/database-name");
-        config.setUsername("your-database-username");
-        config.setPassword("your-database-password");
+
+        config.setJdbcUrl(configuration.getConnectionPoolJdbcUrl());
+        config.setUsername(configuration.getConnectionPoolDbUsername());
+        config.setPassword(configuration.getConnectionPoolDbPassword());
 
         dataSource = new HikariDataSource(config);
     }
