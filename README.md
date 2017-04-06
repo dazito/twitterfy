@@ -12,7 +12,6 @@ This is a work in progress.
 # How to run
 1- Edit the following files with your configuration details:
   - configuration.properties
-  - /jooq/jooq.xml
   - pom.xml
 
 Run Main.class
