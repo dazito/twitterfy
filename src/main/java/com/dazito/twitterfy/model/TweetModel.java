@@ -7,14 +7,12 @@ public class TweetModel {
 
     private final String tweet;
     private final String screenName;
+    private final long timestamp;
 
-    public TweetModel(String tweet, String screenName) {
+    public TweetModel(String tweet, String screenName, long timestamp) {
         this.tweet = tweet;
         this.screenName = screenName;
-    }
-
-    public TweetModel(String tweet) {
-        this(tweet, "");
+        this.timestamp = timestamp;
     }
 
     public String getTweet() {
@@ -23,5 +21,9 @@ public class TweetModel {
 
     public String getScreenName() {
         return screenName;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 }

@@ -42,7 +42,7 @@ public class TweetActor extends UntypedActor {
             final TweetModel tweetModel = (TweetModel) message;
 
             try {
-                dbClient.insertTweet(tweetModel.getTweet(), tweetModel.getScreenName());
+                dbClient.insertTweet(tweetModel.getTweet(), tweetModel.getScreenName(), tweetModel.getTimestamp());
             }
             catch (DetachedException ex) {
                 LOGGER.error("Could not perform INSERT operation - reason: " + ex.getMessage());

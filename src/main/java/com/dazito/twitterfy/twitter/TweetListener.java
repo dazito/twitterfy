@@ -25,7 +25,12 @@ public class TweetListener implements StatusListener {
 
     public void onStatus(Status status) {
         LOGGER.info("New status received: " + status.getText());
-        publisher.publish(new TweetModel(status.getText(), status.getUser().getScreenName()));
+
+        final String text = status.getText();
+        final String screenName = status.getUser().getScreenName();
+        final long createdAt = status.getCreatedAt().toInstant().toEpochMilli();
+
+        publisher.publish(new TweetModel(text, screenName, createdAt));
     }
 
     public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
