@@ -1,5 +1,5 @@
 # twitterfy
-Get subscribe to and get notified when someone tweets your keywords.
+Subscribe to and get notified when someone tweets your keywords.
 
 Using:
  - Java 8
