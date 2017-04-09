@@ -58,17 +58,17 @@ public final class TwitterfyConfiguration {
     }
 
     private String[] parseCommaSeparatedStringToArray(String csvString) {
-        final String[] strArray = csvString.split(",");
+        final String[] strArray = csvString.toLowerCase().split(",");
 
-        for(String str : strArray) {
-            str = str.trim();
+        for(int i = 0; i < strArray.length; i++) {
+            strArray[i] = strArray[i].trim();
         }
 
         return strArray;
     }
 
     private Set<String> parseCommaSeparatedStringToSet(String csvString) {
-        final String[] strArray = parseCommaSeparatedStringToArray(csvString);
+        final String[] strArray = parseCommaSeparatedStringToArray(csvString.toLowerCase());
 
         return new HashSet<>(Arrays.asList(strArray));
     }
