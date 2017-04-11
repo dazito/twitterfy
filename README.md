@@ -6,6 +6,7 @@ Using:
  - JOOQ with MySQL
  - Twitter4J - Twitter API client
  - Akka Framework
+ - Vertx
 
 This is a work in progress.
 
