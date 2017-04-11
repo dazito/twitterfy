@@ -9,8 +9,10 @@ import com.dazito.twitterfy.actor.ActorSystemContainer;
 import com.dazito.twitterfy.actor.SchedulerActor;
 import com.dazito.twitterfy.actor.TweetActor;
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
+import com.dazito.twitterfy.http.VertxHttpServer;
 import com.dazito.twitterfy.twitter.TwitterClient;
 import com.dazito.twitterfy.twitter.TwitterProducer;
+import io.vertx.core.Vertx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ public class Main {
         }
         catch (IOException e) {
             LOGGER.error("Could not load properties configuration file - reason: {}", e.getMessage());
+            return;
         }
 
         // Start scheduler actor
@@ -41,6 +44,9 @@ public class Main {
 
         // Create actor system on startup
         final ActorRef tweeterRouter = configureAkkaRouter();
+        
+        // Setup and start the HTTP server - Websocket
+        Vertx.vertx().deployVerticle(new VertxHttpServer());
 
         final String key = TwitterfyConfiguration.getConfiguration().getTwitterApiKey();
         final String secret = TwitterfyConfiguration.getConfiguration().getTwitterApiSecret();

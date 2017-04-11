@@ -1,7 +1,6 @@
 package com.dazito.twitterfy.actor;
 
-import akka.actor.Props;
-import akka.actor.UntypedActor;
+import akka.actor.*;
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
 import com.dazito.twitterfy.db.DbClient;
 import com.dazito.twitterfy.model.TweetModel;
@@ -20,8 +19,13 @@ public class TweetActor extends UntypedActor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TweetActor.class);
 
+    private static final String HTTP_ACTOR_PATH = "/user/" + HttpActor.class.getSimpleName();
+
+    private final static int HTTP_ACTOR_IDENTIFY_ID = 1;
+
     private DbClient dbClient;
     private Set<String> filterKeywords;
+    private ActorRef httpActor;
 
     public static Props props() {
         return Props.create(TweetActor::new);
@@ -29,11 +33,17 @@ public class TweetActor extends UntypedActor {
 
     @Override
     public void preStart() throws Exception {
+        super.preStart();
+
         dbClient = new DbClient();
         filterKeywords = TwitterfyConfiguration.getConfiguration().getFilterKeywords();
+
+        context().actorSelection(HTTP_ACTOR_PATH).tell(new Identify(HTTP_ACTOR_IDENTIFY_ID), getSelf());
         LOGGER.info("*** Tweet Actor Created  ***");
-        super.preStart();
+
     }
+
+
 
     @Override
     public void postStop() throws Exception {
@@ -48,8 +58,18 @@ public class TweetActor extends UntypedActor {
         if(message instanceof TweetModel) {
             final TweetModel tweetModel = (TweetModel) message;
 
-            if(filterTweet(tweetModel.getTweet())) {
+            if(containsKeyword(tweetModel.getTweet())) {
                 persistTweet(tweetModel);
+
+                if(httpActor != null) {
+                    httpActor.tell(tweetModel.getTweet(), getSelf());
+                }
+            }
+        }
+        else if(message instanceof ActorIdentity) {
+            ActorIdentity actorIdentity = (ActorIdentity) message;
+            if(actorIdentity.correlationId().equals(HTTP_ACTOR_IDENTIFY_ID)) {
+                httpActor = actorIdentity.getRef();
             }
         }
         else {
@@ -66,7 +86,7 @@ public class TweetActor extends UntypedActor {
         }
     }
 
-    private boolean filterTweet(String tweet) {
+    private boolean containsKeyword(String tweet) {
         final String[] splittedTweet = tweet.trim().toLowerCase().split(" +");
         final Set<String> tweetSet = new HashSet<>(Arrays.asList(splittedTweet));
 
