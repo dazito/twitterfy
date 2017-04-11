@@ -9,7 +9,7 @@ import com.dazito.twitterfy.actor.ActorSystemContainer;
 import com.dazito.twitterfy.actor.SchedulerActor;
 import com.dazito.twitterfy.actor.TweetActor;
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
-import com.dazito.twitterfy.http.VertxHttpServer;
+import com.dazito.twitterfy.http.HttpServerVerticle;
 import com.dazito.twitterfy.twitter.TwitterClient;
 import com.dazito.twitterfy.twitter.TwitterProducer;
 import io.vertx.core.Vertx;
@@ -46,7 +46,7 @@ public class Main {
         final ActorRef tweeterRouter = configureAkkaRouter();
         
         // Setup and start the HTTP server - Websocket
-        Vertx.vertx().deployVerticle(new VertxHttpServer());
+        Vertx.vertx().deployVerticle(new HttpServerVerticle());
 
         final String key = TwitterfyConfiguration.getConfiguration().getTwitterApiKey();
         final String secret = TwitterfyConfiguration.getConfiguration().getTwitterApiSecret();

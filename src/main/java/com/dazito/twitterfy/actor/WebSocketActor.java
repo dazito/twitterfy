@@ -9,18 +9,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by daz on 11/04/2017.
  */
-public class WebsocketActor extends UntypedActor {
+public class WebSocketActor extends UntypedActor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketActor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketActor.class);
 
     private ServerWebSocket serverWebSocket;
 
-    public WebsocketActor(ServerWebSocket serverWebSocket) {
+    public WebSocketActor(ServerWebSocket serverWebSocket) {
         this.serverWebSocket = serverWebSocket;
     }
 
     public static Props props(final ServerWebSocket serverWebSocket) {
-        return Props.create(WebsocketActor.class, serverWebSocket);
+        return Props.create(WebSocketActor.class, serverWebSocket);
     }
 
 

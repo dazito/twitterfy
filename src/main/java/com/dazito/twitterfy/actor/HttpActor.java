@@ -49,7 +49,7 @@ public class HttpActor extends UntypedActor {
     public void onReceive(Object message) throws Throwable {
         if(message instanceof ServerWebSocket) {
             ServerWebSocket ws = (ServerWebSocket) message;
-            final ActorRef actorRef = getContext().actorOf(WebsocketActor.props(ws));
+            final ActorRef actorRef = getContext().actorOf(WebSocketActor.props(ws));
             actorList.add(actorRef);
         }
         else if(message instanceof String) {
