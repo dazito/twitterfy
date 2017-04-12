@@ -23,6 +23,8 @@ public final class TwitterfyConfiguration {
     private static final String DB_PASSWORD = "db-password";
     private static final String AWS_SNS_TOPIC_ARN = "sns-topic-arn";
     private static final String AWS_SNS_REGION = "sns-region";
+    private static final String AWS_SECRET_KEY = "aws-secret-key";
+    private static final String AWS_ACCESS_KEY = "aws-access-key";
 
     private String twitterApiKey;
     private String twitterApiSecret;
@@ -35,6 +37,8 @@ public final class TwitterfyConfiguration {
     private Set<String> filterKeywords;
     private String awsSnsTopicArn;
     private String awsSnsRegion;
+    private String awsSecretKey;
+    private String awsAccessKey;
 
     final Properties properties = new Properties();
 
@@ -59,6 +63,8 @@ public final class TwitterfyConfiguration {
         connectionPoolDbPassword = properties.getProperty(DB_PASSWORD, "");
         awsSnsTopicArn = properties.getProperty(AWS_SNS_TOPIC_ARN, "");
         awsSnsRegion = properties.getProperty(AWS_SNS_REGION, "");
+        awsAccessKey = properties.getProperty(AWS_ACCESS_KEY, "");
+        awsSecretKey = properties.getProperty(AWS_SECRET_KEY, "");
         subscribeKeywords = parseCommaSeparatedStringToArray(properties.getProperty(TWITTER_KEYWORDS, ""));
         filterKeywords = parseCommaSeparatedStringToSet(properties.getProperty(FILTER_KEYWORDS, ""));
     }
@@ -121,5 +127,13 @@ public final class TwitterfyConfiguration {
 
     public String getAwsSnsRegion() {
         return awsSnsRegion;
+    }
+
+    public String getAwsSecretKey() {
+        return awsSecretKey;
+    }
+
+    public String getAwsAccessKey() {
+        return awsAccessKey;
     }
 }
