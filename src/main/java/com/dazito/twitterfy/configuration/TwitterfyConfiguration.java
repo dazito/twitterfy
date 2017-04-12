@@ -21,6 +21,8 @@ public final class TwitterfyConfiguration {
     private static final String JDBC_URL = "JdbcUrl";
     private static final String DB_USERNAME = "db-username";
     private static final String DB_PASSWORD = "db-password";
+    private static final String AWS_SNS_TOPIC_ARN = "sns-topic-arn";
+    private static final String AWS_SNS_REGION = "sns-region";
 
     private String twitterApiKey;
     private String twitterApiSecret;
@@ -31,6 +33,8 @@ public final class TwitterfyConfiguration {
     private String connectionPoolDbUsername;
     private String connectionPoolDbPassword;
     private Set<String> filterKeywords;
+    private String awsSnsTopicArn;
+    private String awsSnsRegion;
 
     final Properties properties = new Properties();
 
@@ -53,6 +57,8 @@ public final class TwitterfyConfiguration {
         connectionPoolJdbcUrl = properties.getProperty(JDBC_URL, "");
         connectionPoolDbUsername = properties.getProperty(DB_USERNAME, "");
         connectionPoolDbPassword = properties.getProperty(DB_PASSWORD, "");
+        awsSnsTopicArn = properties.getProperty(AWS_SNS_TOPIC_ARN, "");
+        awsSnsRegion = properties.getProperty(AWS_SNS_REGION, "");
         subscribeKeywords = parseCommaSeparatedStringToArray(properties.getProperty(TWITTER_KEYWORDS, ""));
         filterKeywords = parseCommaSeparatedStringToSet(properties.getProperty(FILTER_KEYWORDS, ""));
     }
@@ -107,5 +113,13 @@ public final class TwitterfyConfiguration {
 
     public Set<String> getFilterKeywords() {
         return filterKeywords;
+    }
+
+    public String getAwsSnsTopicArn() {
+        return awsSnsTopicArn;
+    }
+
+    public String getAwsSnsRegion() {
+        return awsSnsRegion;
     }
 }
