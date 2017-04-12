@@ -1,5 +1,12 @@
 # twitterfy
-Subscribe to and get notified when someone tweets your keywords.
+Subscribe to and get notified when someone tweets your keywords. This is a work in progress, pull requests are welcome.
+ - Get notified via:
+   - Web sockets
+   - Amazon SNS service
+   - More services/technologies to come
+ - Persist tweets on
+   - MySQL database
+   - More databases to come
 
 Using:
  - Java 8
@@ -20,4 +27,4 @@ Run Main.class
 Next features:
   - Run on a docker container
   - Send email notifications
-  - Publish notification to Amazon Web Services SNS - Simple Notification Service
+  - ~~Publish notification to Amazon Web Services SNS - Simple Notification Service~~ - Implemented
