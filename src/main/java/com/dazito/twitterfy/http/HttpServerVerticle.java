@@ -4,6 +4,8 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import com.dazito.twitterfy.actor.ActorSystemContainer;
 import com.dazito.twitterfy.actor.HttpActor;
+import com.dazito.twitterfy.actor.message.CloseWebSocketConnectionEvent;
+import com.dazito.twitterfy.actor.message.NewWebSocketConnectionEvent;
 import io.vertx.core.AbstractVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +30,12 @@ public class HttpServerVerticle extends AbstractVerticle {
     public void createHttpServer() {
         vertx.createHttpServer().websocketHandler(serverWebSocket -> {
             if(WS_SUBSCRIBE_PATH.equals(serverWebSocket.path())) {
-                httpActor.tell(serverWebSocket, ActorRef.noSender());
+                httpActor.tell(new NewWebSocketConnectionEvent(serverWebSocket), ActorRef.noSender());
 
-                // TODO: Handle socket closed on the HttpActor - and subactors
-                serverWebSocket.closeHandler(event -> LOGGER.info("Socket closed"));
+                // Handle socket closed on the HttpActor
+                serverWebSocket.closeHandler(event -> {
+                    httpActor.tell(new CloseWebSocketConnectionEvent(serverWebSocket), ActorRef.noSender());
+                });
             }
             else {
                 serverWebSocket.reject();

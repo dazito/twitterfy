@@ -6,14 +6,16 @@
 package com.dazito.twitterfy.actor;
 
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import com.dazito.twitterfy.actor.message.CloseWebSocketConnectionEvent;
+import com.dazito.twitterfy.actor.message.NewWebSocketConnectionEvent;
 import io.vertx.core.http.ServerWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -23,7 +25,7 @@ public class HttpActor extends UntypedActor {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpActor.class);
     
-    private List<ActorRef> actorList;
+    private Map<ServerWebSocket, ActorRef> actorRefMap;
     
     public static Props props() {
         return Props.create(HttpActor.class);
@@ -32,13 +34,13 @@ public class HttpActor extends UntypedActor {
     @Override
     public void preStart() throws Exception {
         super.preStart();
-        actorList = new ArrayList<>();
+        actorRefMap = new HashMap<>();
     }
 
     @Override
     public void postStop() throws Exception {
-        actorList.clear();
-        actorList = null;
+        actorRefMap.clear();
+        actorRefMap = null;
         super.postStop(); 
     }
 
@@ -47,14 +49,34 @@ public class HttpActor extends UntypedActor {
     
     @Override
     public void onReceive(Object message) throws Throwable {
-        if(message instanceof ServerWebSocket) {
-            ServerWebSocket ws = (ServerWebSocket) message;
+        if(message instanceof NewWebSocketConnectionEvent) {
+            final NewWebSocketConnectionEvent event = (NewWebSocketConnectionEvent) message;
+            final ServerWebSocket ws = event.getWebSocket();
+
             final ActorRef actorRef = getContext().actorOf(WebSocketActor.props(ws));
-            actorList.add(actorRef);
+            actorRefMap.put(ws, actorRef);
         }
         else if(message instanceof String) {
             final String msg = (String) message;
-            actorList.forEach(actor -> actor.tell(msg, getSelf()));
+
+            // Let each WebSocketActor push down the message to the client
+            actorRefMap
+                    .keySet()
+                    .forEach(serverWebSocket -> actorRefMap.get(serverWebSocket).tell(msg, getSelf()));
+        }
+        else if(message instanceof CloseWebSocketConnectionEvent) {
+            final CloseWebSocketConnectionEvent event = (CloseWebSocketConnectionEvent) message;
+            final ServerWebSocket ws = event.getWebSocket();
+
+            actorRefMap
+                    .keySet()
+                    .stream()
+                    .filter(serverWebSocket -> Objects.equals(serverWebSocket, ws))
+                    .findFirst()
+                    .ifPresent(serverWebSocket -> {
+                        actorRefMap.get(serverWebSocket).tell(PoisonPill.getInstance(), getSelf());
+                        actorRefMap.remove(serverWebSocket);
+                    });
         }
         else {
             unhandled(message);
