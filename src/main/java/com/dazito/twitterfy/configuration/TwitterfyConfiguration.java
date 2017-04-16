@@ -12,19 +12,29 @@ import java.util.Set;
 public final class TwitterfyConfiguration {
 
     private static final String PROPERTIES_FILE_NAME = "configuration.properties";
-    private static final String TWITTER_API_KEY = "key";
-    private static final String TWITTER_API_SECRET = "secret";
-    private static final String TWITTER_API_TOKEN = "token";
-    private static final String TWITTER_API_TOKEN_SECRET = "tokenSecret";
-    private static final String TWITTER_KEYWORDS = "twitter-keywords";
-    private static final String FILTER_KEYWORDS = "filter-keywords";
-    private static final String JDBC_URL = "JdbcUrl";
-    private static final String DB_USERNAME = "db-username";
-    private static final String DB_PASSWORD = "db-password";
-    private static final String AWS_SNS_TOPIC_ARN = "sns-topic-arn";
-    private static final String AWS_SNS_REGION = "sns-region";
-    private static final String AWS_SECRET_KEY = "aws-secret-key";
-    private static final String AWS_ACCESS_KEY = "aws-access-key";
+    private static final String TWITTER_API_KEY = "twitter.key";
+    private static final String TWITTER_API_SECRET = "twitter.secret";
+    private static final String TWITTER_API_TOKEN = "twitter.token";
+    private static final String TWITTER_API_TOKEN_SECRET = "twitter.tokenSecret";
+    private static final String TWITTER_KEYWORDS = "twitter.keywords";
+    private static final String FILTER_KEYWORDS = "twitter.keywords.filter";
+    private static final String DB_JDBC_URL = "db.JdbcUrl";
+    private static final String DB_USERNAME = "db.username";
+    private static final String DB_PASSWORD = "db.password";
+    private static final String AWS_SNS_TOPIC_ARN = "aws.sns.topic-arn";
+    private static final String AWS_SNS_REGION = "aws.sns.region";
+    private static final String AWS_SECRET_KEY = "aws.secret-key";
+    private static final String AWS_ACCESS_KEY = "aws.access-key";
+    private static final String SCHEDULER_ACTIVATED = "scheduler.active";
+    private static final String SCHEDULER_FREQUENCY = "scheduler.frequency";
+    private static final String SCHEDULER_FREQUENCY_UNIT = "scheduler.frequency.unit";
+    private static final String EMAIL_PORT = "email.port";
+    private static final String EMAIL_TO = "email.to";
+    private static final String EMAIL_FROM = "email.from";
+    private static final String EMAIL_USER = "email.user";
+    private static final String EMAIL_PASSWORD = "email.password";
+    private static final String EMAIL_SMTP_HOST = "email.smtp.host";
+    private static final String EMAIL_SUBJECT = "email.subject";
 
     private String twitterApiKey;
     private String twitterApiSecret;
@@ -39,6 +49,16 @@ public final class TwitterfyConfiguration {
     private String awsSnsRegion;
     private String awsSecretKey;
     private String awsAccessKey;
+    private boolean isSchedulerActivated;
+    private int schedulerFrequency;
+    private String schedulerFrequencyUnit;
+    private int emailPort;
+    private String[] emailTo;
+    private String emailFrom;
+    private String emailUsername;
+    private String emailPassword;
+    private String emailSmtpHost;
+    private String emailSubject;
 
     final Properties properties = new Properties();
 
@@ -58,13 +78,25 @@ public final class TwitterfyConfiguration {
 
         twitterApiToken = properties.getProperty(TWITTER_API_TOKEN, "");
         twitterApiTokenSecret = properties.getProperty(TWITTER_API_TOKEN_SECRET, "");
-        connectionPoolJdbcUrl = properties.getProperty(JDBC_URL, "");
+        connectionPoolJdbcUrl = properties.getProperty(DB_JDBC_URL, "");
         connectionPoolDbUsername = properties.getProperty(DB_USERNAME, "");
         connectionPoolDbPassword = properties.getProperty(DB_PASSWORD, "");
         awsSnsTopicArn = properties.getProperty(AWS_SNS_TOPIC_ARN, "");
         awsSnsRegion = properties.getProperty(AWS_SNS_REGION, "");
         awsAccessKey = properties.getProperty(AWS_ACCESS_KEY, "");
         awsSecretKey = properties.getProperty(AWS_SECRET_KEY, "");
+        isSchedulerActivated = Boolean.parseBoolean(properties.getProperty(SCHEDULER_ACTIVATED, "false"));
+        schedulerFrequency = Integer.parseInt(properties.getProperty(SCHEDULER_FREQUENCY, "1"));
+
+        // toUpperCase to be able to be parsed by TimeUnit as SECONDS/MINUTES/HOURS/DAYS...
+        schedulerFrequencyUnit = properties.getProperty(SCHEDULER_FREQUENCY_UNIT, "days").toUpperCase();
+        emailPort = Integer.parseInt(properties.getProperty(EMAIL_PORT, "465"));
+        emailTo = parseCommaSeparatedStringToArray(properties.getProperty(EMAIL_TO, ""));
+        emailFrom = properties.getProperty(EMAIL_FROM, "");
+        emailUsername = properties.getProperty(EMAIL_USER, "");
+        emailPassword = properties.getProperty(EMAIL_PASSWORD, "");
+        emailSmtpHost = properties.getProperty(EMAIL_SMTP_HOST, "");
+        emailSubject = properties.getProperty(EMAIL_SUBJECT, "");
         subscribeKeywords = parseCommaSeparatedStringToArray(properties.getProperty(TWITTER_KEYWORDS, ""));
         filterKeywords = parseCommaSeparatedStringToSet(properties.getProperty(FILTER_KEYWORDS, ""));
     }
@@ -135,5 +167,45 @@ public final class TwitterfyConfiguration {
 
     public String getAwsAccessKey() {
         return awsAccessKey;
+    }
+
+    public boolean isSchedulerActivated() {
+        return isSchedulerActivated;
+    }
+
+    public int getSchedulerFrequency() {
+        return schedulerFrequency;
+    }
+
+    public String getSchedulerFrequencyUnit() {
+        return schedulerFrequencyUnit;
+    }
+
+    public int getEmailPort() {
+        return emailPort;
+    }
+
+    public String[] getEmailTo() {
+        return emailTo;
+    }
+
+    public String getEmailFrom() {
+        return emailFrom;
+    }
+
+    public String getEmailUsername() {
+        return emailUsername;
+    }
+
+    public String getEmailPassword() {
+        return emailPassword;
+    }
+
+    public String getEmailSmtpHost() {
+        return emailSmtpHost;
+    }
+
+    public String getEmailSubject() {
+        return emailSubject;
     }
 }
