@@ -18,16 +18,19 @@ public final class TwitterfyConfiguration {
     private static final String TWITTER_API_TOKEN_SECRET = "twitter.tokenSecret";
     private static final String TWITTER_KEYWORDS = "twitter.keywords";
     private static final String FILTER_KEYWORDS = "twitter.keywords.filter";
+    private static final String DB_ACTIVE = "db.active";
     private static final String DB_JDBC_URL = "db.JdbcUrl";
     private static final String DB_USERNAME = "db.username";
     private static final String DB_PASSWORD = "db.password";
     private static final String AWS_SNS_TOPIC_ARN = "aws.sns.topic-arn";
+    private static final String AWS_SNS_ACTIVE = "aws.sns.active";
     private static final String AWS_SNS_REGION = "aws.sns.region";
     private static final String AWS_SECRET_KEY = "aws.secret-key";
     private static final String AWS_ACCESS_KEY = "aws.access-key";
-    private static final String SCHEDULER_ACTIVATED = "scheduler.active";
+    private static final String SCHEDULER_ACTIVE = "scheduler.active";
     private static final String SCHEDULER_FREQUENCY = "scheduler.frequency";
     private static final String SCHEDULER_FREQUENCY_UNIT = "scheduler.frequency.unit";
+    private static final String EMAIL_ACTIVE = "email.active";
     private static final String EMAIL_PORT = "email.port";
     private static final String EMAIL_TO = "email.to";
     private static final String EMAIL_FROM = "email.from";
@@ -35,23 +38,30 @@ public final class TwitterfyConfiguration {
     private static final String EMAIL_PASSWORD = "email.password";
     private static final String EMAIL_SMTP_HOST = "email.smtp.host";
     private static final String EMAIL_SUBJECT = "email.subject";
+    private static final String GC_CREDENTIALS_JSON_PATH = "gc.credentials.json.path";
+    private static final String GC_PUBSUB_ACTIVE = "gc.pubsub.active";
+    private static final String GC_PUBSUB_PROJECT_ID = "gc.pubsub.project-id";
+    private static final String GC_PUBSUB_TOPIC = "gc.pubsub.topic";
 
     private String twitterApiKey;
     private String twitterApiSecret;
     private String twitterApiToken;
     private String twitterApiTokenSecret;
     private String[] subscribeKeywords;
+    private boolean dbActive;
     private String connectionPoolJdbcUrl;
     private String connectionPoolDbUsername;
     private String connectionPoolDbPassword;
     private Set<String> filterKeywords;
     private String awsSnsTopicArn;
     private String awsSnsRegion;
+    private boolean awsSnsActive;
     private String awsSecretKey;
     private String awsAccessKey;
     private boolean isSchedulerActivated;
     private int schedulerFrequency;
     private String schedulerFrequencyUnit;
+    private boolean emailActive;
     private int emailPort;
     private String[] emailTo;
     private String emailFrom;
@@ -59,6 +69,10 @@ public final class TwitterfyConfiguration {
     private String emailPassword;
     private String emailSmtpHost;
     private String emailSubject;
+    private String gcCredentialsJsonPath;
+    private boolean gcPubsubActive;
+    private String gcPubsubProjectId;
+    private String gcPubsubTopic;
 
     final Properties properties = new Properties();
 
@@ -78,18 +92,21 @@ public final class TwitterfyConfiguration {
 
         twitterApiToken = properties.getProperty(TWITTER_API_TOKEN, "");
         twitterApiTokenSecret = properties.getProperty(TWITTER_API_TOKEN_SECRET, "");
+        dbActive = Boolean.parseBoolean(properties.getProperty(DB_ACTIVE, "false"));
         connectionPoolJdbcUrl = properties.getProperty(DB_JDBC_URL, "");
         connectionPoolDbUsername = properties.getProperty(DB_USERNAME, "");
         connectionPoolDbPassword = properties.getProperty(DB_PASSWORD, "");
         awsSnsTopicArn = properties.getProperty(AWS_SNS_TOPIC_ARN, "");
         awsSnsRegion = properties.getProperty(AWS_SNS_REGION, "");
+        awsSnsActive = Boolean.parseBoolean(properties.getProperty(AWS_SNS_ACTIVE, "false"));
         awsAccessKey = properties.getProperty(AWS_ACCESS_KEY, "");
         awsSecretKey = properties.getProperty(AWS_SECRET_KEY, "");
-        isSchedulerActivated = Boolean.parseBoolean(properties.getProperty(SCHEDULER_ACTIVATED, "false"));
+        isSchedulerActivated = Boolean.parseBoolean(properties.getProperty(SCHEDULER_ACTIVE, "false"));
         schedulerFrequency = Integer.parseInt(properties.getProperty(SCHEDULER_FREQUENCY, "1"));
 
         // toUpperCase to be able to be parsed by TimeUnit as SECONDS/MINUTES/HOURS/DAYS...
         schedulerFrequencyUnit = properties.getProperty(SCHEDULER_FREQUENCY_UNIT, "days").toUpperCase();
+        emailActive = Boolean.parseBoolean(properties.getProperty(EMAIL_ACTIVE, "false"));
         emailPort = Integer.parseInt(properties.getProperty(EMAIL_PORT, "465"));
         emailTo = parseCommaSeparatedStringToArray(properties.getProperty(EMAIL_TO, ""));
         emailFrom = properties.getProperty(EMAIL_FROM, "");
@@ -99,6 +116,10 @@ public final class TwitterfyConfiguration {
         emailSubject = properties.getProperty(EMAIL_SUBJECT, "");
         subscribeKeywords = parseCommaSeparatedStringToArray(properties.getProperty(TWITTER_KEYWORDS, ""));
         filterKeywords = parseCommaSeparatedStringToSet(properties.getProperty(FILTER_KEYWORDS, ""));
+        gcCredentialsJsonPath = properties.getProperty(GC_CREDENTIALS_JSON_PATH, "");
+        gcPubsubActive = Boolean.parseBoolean(properties.getProperty(GC_PUBSUB_ACTIVE, "false"));
+        gcPubsubProjectId = properties.getProperty(GC_PUBSUB_PROJECT_ID, "");
+        gcPubsubTopic = properties.getProperty(GC_PUBSUB_TOPIC, "");
     }
 
     private String[] parseCommaSeparatedStringToArray(String csvString) {
@@ -207,5 +228,33 @@ public final class TwitterfyConfiguration {
 
     public String getEmailSubject() {
         return emailSubject;
+    }
+
+    public String getGcCredentialsJsonPath() {
+        return gcCredentialsJsonPath;
+    }
+
+    public boolean isGcPubsubActive() {
+        return gcPubsubActive;
+    }
+
+    public String getGcPubsubProjectId() {
+        return gcPubsubProjectId;
+    }
+
+    public String getGcPubsubTopic() {
+        return gcPubsubTopic;
+    }
+
+    public boolean isAwsSnsActive() {
+        return awsSnsActive;
+    }
+
+    public boolean isDbActive() {
+        return dbActive;
+    }
+
+    public boolean isEmailActive() {
+        return emailActive;
     }
 }
