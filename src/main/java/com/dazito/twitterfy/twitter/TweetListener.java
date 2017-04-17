@@ -24,8 +24,6 @@ public class TweetListener implements StatusListener {
 
 
     public void onStatus(Status status) {
-        LOGGER.info("New status received: " + status.getText());
-
         final String text = status.getText();
         final String screenName = status.getUser().getScreenName();
         final long createdAt = status.getCreatedAt().toInstant().toEpochMilli();

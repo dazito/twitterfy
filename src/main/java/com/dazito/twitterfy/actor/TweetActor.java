@@ -4,7 +4,6 @@ import akka.actor.*;
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
 import com.dazito.twitterfy.db.DbClient;
 import com.dazito.twitterfy.model.TweetModel;
-import org.jooq.exception.DetachedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +25,18 @@ public class TweetActor extends UntypedActor {
     private DbClient dbClient;
     private Set<String> filterKeywords;
     private ActorRef httpActor;
+    private ActorRef awsSnsActor;
+    private ActorRef gcPubsubActor;
+    private ActorRef databaseActor;
 
-    public static Props props() {
-        return Props.create(TweetActor::new);
+    public static Props props(ActorRef awsSnsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
+        return Props.create(TweetActor.class, awsSnsActor, gcPubsubActor, databaseActor);
+    }
+
+    public TweetActor(ActorRef awsSnsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
+        this.awsSnsActor = awsSnsActor;
+        this.gcPubsubActor = gcPubsubActor;
+        this.databaseActor = databaseActor;
     }
 
     @Override
@@ -40,7 +48,6 @@ public class TweetActor extends UntypedActor {
 
         context().actorSelection(HTTP_ACTOR_PATH).tell(new Identify(HTTP_ACTOR_IDENTIFY_ID), getSelf());
         LOGGER.info("*** Tweet Actor Created  ***");
-
     }
 
 
@@ -59,11 +66,13 @@ public class TweetActor extends UntypedActor {
             final TweetModel tweetModel = (TweetModel) message;
 
             if(containsKeyword(tweetModel.getTweet())) {
-                persistTweet(tweetModel);
-
                 if(httpActor != null) {
                     httpActor.tell(tweetModel.getTweet(), getSelf());
                 }
+
+                awsSnsActor.tell(tweetModel, getSelf());
+                gcPubsubActor.tell(tweetModel, getSelf());
+                databaseActor.tell(tweetModel, getSelf());
             }
         }
         else if(message instanceof ActorIdentity) {
@@ -74,15 +83,6 @@ public class TweetActor extends UntypedActor {
         }
         else {
             unhandled(message);
-        }
-    }
-
-    private void persistTweet(TweetModel tweetModel) {
-        try {
-            dbClient.insertTweet(tweetModel.getTweet(), tweetModel.getScreenName(), tweetModel.getTimestamp());
-        }
-        catch (DetachedException ex) {
-            LOGGER.error("Could not perform INSERT operation - reason: {}", ex.getMessage());
         }
     }
 

@@ -1,23 +1,18 @@
 package com.dazito.twitterfy;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.routing.FromConfig;
-import akka.routing.RoundRobinGroup;
-import com.dazito.twitterfy.actor.ActorSystemContainer;
-import com.dazito.twitterfy.actor.SchedulerActor;
-import com.dazito.twitterfy.actor.TweetActor;
+import com.dazito.twitterfy.actor.*;
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
 import com.dazito.twitterfy.http.HttpServer;
 import com.dazito.twitterfy.http.HttpServerImpl;
 import com.dazito.twitterfy.twitter.TwitterClient;
 import com.dazito.twitterfy.twitter.TwitterProducer;
+import com.dazito.twitterfy.util.AkkaUtil;
+import com.dazito.twitterfy.util.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Created by daz on 30/03/2017.
@@ -26,9 +21,9 @@ public class Main {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    private static final String TWEET_ROUTER_NAME = "tweet-router";
 
-    public static void main(String args[]) {
+
+    public static void main(String args[]) throws Exception {
 
         // Load configurations
         try {
@@ -39,12 +34,6 @@ public class Main {
             return;
         }
 
-        // Start scheduler actor
-        ActorSystemContainer.getInstance().getActorSystem().actorOf(SchedulerActor.props(), "scheduler");
-
-        // Create actor system on startup
-        final ActorRef tweeterRouter = configureAkkaRouter();
-        
         // Setup and start the HTTP server - Websocket
         HttpServer httpServer = new HttpServerImpl();
         httpServer.start();
@@ -54,6 +43,16 @@ public class Main {
         final String token = TwitterfyConfiguration.getConfiguration().getTwitterApiToken();
         final String tokenSecret = TwitterfyConfiguration.getConfiguration().getTwitterApiTokenSecret();
         final String[] keywords = TwitterfyConfiguration.getConfiguration().getSubscribeKeywords();
+
+        // Start scheduler actor
+        ActorSystemContainer.getInstance().getActorSystem().actorOf(SchedulerActor.props(), "scheduler");
+
+        // Create actor system on startup
+        ActorRef awsSnsActor = AkkaUtil.configureRouter(AwsSnsActor.class, Constant.AWS_SNS_ROUTER_NAME);
+        ActorRef gcPubsubActor = AkkaUtil.configureRouter(GcPubsubActor.class, Constant.GC_PUBSUB_ROUTER_NAME);
+        ActorRef databaseActor = AkkaUtil.configureRouter(DatabaseActor.class, Constant.DATABASE_ROUTER_NAME);
+
+        final ActorRef tweeterRouter = AkkaUtil.configureRouter(TweetActor.class, Constant.TWEET_ROUTER_NAME, awsSnsActor, gcPubsubActor, databaseActor);
 
         final Publisher publisher = new TwitterProducer(
                 ActorSystemContainer.getInstance().getActorSystem(), tweeterRouter
@@ -78,20 +77,5 @@ public class Main {
     }
 
 
-    private static ActorRef configureAkkaRouter() {
-        // Create actor system on startup
-        final ActorSystem actorSystem = ActorSystemContainer.getInstance().getActorSystem();
 
-        // Simulate a list of actor paths
-        Iterable<String> actors = new ArrayList<>();
-
-        // Create Router actor
-        ActorRef router = actorSystem.actorOf(new RoundRobinGroup(actors).props());
-
-        ActorRef tweetRouter = actorSystem.actorOf(
-                FromConfig.getInstance().props(Props.create(TweetActor.class)), TWEET_ROUTER_NAME
-        );
-
-        return tweetRouter;
-    }
 }
