@@ -81,7 +81,7 @@ public class EmailClient {
         }
     }
 
-    public String buildEmailBody(List<TweetModel> tweetModelList) {
+    private String buildEmailBody(List<TweetModel> tweetModelList) {
         final StringBuilder emailBody = new StringBuilder();
         final String currentTime = TimeUtil.parseTimestampToDateText(TimeUtil.currentTimestampUtc());
 

@@ -49,6 +49,10 @@ public class DbClient {
         return list;
     }
 
+    public void setTweetsAsProcessed(/*final List<TweetModel> tweetModelList*/) {
+        ctx.update(Tweet.TWEET).set(Tweet.TWEET.PROCESSED, new Byte("1")).where(Tweet.TWEET.PROCESSED.isFalse()).execute();
+    }
+
     public void close() {
         try {
             connection.close();
@@ -66,6 +70,6 @@ public class DbClient {
         Long timestamp = record.getValue(Tweet.TWEET.TIMESTAMP);
         Timestamp timestampStr = record.getValue(Tweet.TWEET.TIMESTAMPSTR);
 
-        return new TweetModel(tweet, screenName, timestamp);
+        return new TweetModel(id, tweet, screenName, timestamp);
     }
 }
