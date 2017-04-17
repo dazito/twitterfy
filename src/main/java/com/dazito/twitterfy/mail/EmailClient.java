@@ -2,6 +2,7 @@ package com.dazito.twitterfy.mail;
 
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
 import com.dazito.twitterfy.model.TweetModel;
+import com.dazito.twitterfy.util.StringUtil;
 import com.dazito.twitterfy.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,10 +97,10 @@ public class EmailClient {
             emailBody
                     .append(TimeUtil.parseTimestampToDateText(tweetModel.getTimestamp()))
                     .append(" :: ")
-                    .append(tweetModel.getTweet())
+                    .append(StringUtil.remoteNewLine(tweetModel.getTweet()))
                     .append(" :: ")
                     .append(tweetModel.getScreenName())
-                    .append("\n");
+                    .append("\n----------------------------------------\n");
         }
 
         emailBody
