@@ -3,6 +3,7 @@ Subscribe to and get notified when someone tweets your keywords. This is a work 
  - Get notified via:
    - Web sockets
    - Amazon SNS service
+   - Google Cloud Pubsub
    - More services/technologies to come
  - Persist tweets on
    - MySQL database
@@ -26,5 +27,5 @@ Run Main.class
 
 Next features:
   - Run on a docker container
-  - Send email notifications
-  - ~~Publish notification to Amazon Web Services SNS - Simple Notification Service~~ - Implemented
+  - ~~Send email notifications~~ :: Implemented
+  - ~~Publish notification to Amazon Web Services SNS - Simple Notification Service~~ :: Implemented
