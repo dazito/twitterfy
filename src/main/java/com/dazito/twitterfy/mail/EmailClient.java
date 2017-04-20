@@ -11,6 +11,7 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -44,7 +45,7 @@ public class EmailClient {
         emailSubject = TwitterfyConfiguration.getConfiguration().getEmailSubject();
     }
 
-    public void createAndSendEmail(List<TweetModel> tweetModelList) {
+    public void sendEmail(String emailContent) {
 
         Properties props = new Properties();
         props.put(MAIL_SMTP_HOST, emailSmtpHost);
@@ -73,7 +74,7 @@ public class EmailClient {
 
             message.setRecipients(Message.RecipientType.TO, addresses);
             message.setSubject(emailSubject);
-            message.setText(buildEmailBody(tweetModelList));
+            message.setContent(emailContent, "text/html");
 
             Transport.send(message);
         }
@@ -82,33 +83,47 @@ public class EmailClient {
         }
     }
 
-    private String buildEmailBody(List<TweetModel> tweetModelList) {
+    public String buildEmailBody(Map<String, List<TweetModel>> map) {
         final StringBuilder emailBody = new StringBuilder();
         final String currentTime = TimeUtil.parseTimestampToDateText(TimeUtil.currentTimestampUtc());
 
         emailBody
                 .append("Date: ")
                 .append(currentTime)
-                .append("\n\n")
+                .append("<br><br>")
                 .append("Tweet List: ")
-                .append("\n");
+                .append("<br><br>");
 
-        for(TweetModel tweetModel : tweetModelList) {
+        map.keySet().forEach(key -> {
             emailBody
-                    .append(TimeUtil.parseTimestampToDateText(tweetModel.getTimestamp()))
-                    .append(" :: ")
-                    .append(StringUtil.remoteNewLine(tweetModel.getTweet()))
-                    .append(" :: ")
-                    .append(tweetModel.getScreenName())
-                    .append("\n----------------------------------------\n");
-        }
+                    .append("<br><br><strong>Topic: ")
+                    .append(key)
+                    .append("</strong><br>");
+
+            map.get(key).forEach(tweetModel -> {
+                String tweet = StringUtil.removeNewLine(tweetModel.getTweet());
+                final List<String> linkList = StringUtil.fetchUrlFromTweet(tweet);
+
+                for(String link : linkList) {
+                    tweet = tweet.replace(link, "<a href=\"" + link + "\" target=\"_blank\">" + link + "</a>");
+                }
+
+                emailBody
+                        .append(TimeUtil.parseTimestampToDateText(tweetModel.getTimestamp()))
+                        .append(" <strong>::</strong> ")
+                        .append(tweet)
+                        .append(" :: ")
+                        .append(tweetModel.getScreenName())
+                        .append("<br>----------------------------------------<br>");
+            });
+        });
 
         emailBody
-                .append("\n")
+                .append("<br><br>")
                 .append("Stay tunned for the next batch!")
-                .append("\n")
+                .append("<br>")
                 .append("Best,")
-                .append("\n")
+                .append("<br>")
                 .append("Twitterfy");
 
         return emailBody.toString();

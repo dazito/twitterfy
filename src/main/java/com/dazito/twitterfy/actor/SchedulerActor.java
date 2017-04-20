@@ -13,8 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Created by daz on 05/04/2017.
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class SchedulerActor extends UntypedActor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerActor.class);
+    public static final String OTHERS = "Others";
 
     private DbClient dbClient;
     private Cancellable tick;
@@ -72,8 +74,13 @@ public class SchedulerActor extends UntypedActor {
                 return;
             }
 
+            Map<String, List<TweetModel>> groupedByKeywordTweets = tweetModelList
+                    .stream()
+                    .collect(Collectors.groupingBy(this::filter));
+
             EmailClient emailClient = new EmailClient();
-            emailClient.createAndSendEmail(tweetModelList);
+            final String emailBody = emailClient.buildEmailBody(groupedByKeywordTweets);
+            emailClient.sendEmail(emailBody);
 
             dbClient.setTweetsAsProcessed();
 
@@ -82,5 +89,19 @@ public class SchedulerActor extends UntypedActor {
         else {
             unhandled(message);
         }
+    }
+
+    private String filter(TweetModel tweetModel) {
+        final String[] splitTweet = tweetModel.getTweet().trim().toLowerCase().split(" +");
+        final Set<String> tweetSet = new HashSet<>(Arrays.asList(splitTweet));
+        Set<String> filterKeywords = TwitterfyConfiguration.getConfiguration().getFilterKeywords();
+
+        for(String tweet : tweetSet) {
+            if(filterKeywords.contains(tweet.toLowerCase())) {
+                return tweet;
+            }
+        }
+
+        return OTHERS;
     }
 }
