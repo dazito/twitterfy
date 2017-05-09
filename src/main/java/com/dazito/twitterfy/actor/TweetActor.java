@@ -67,7 +67,7 @@ public class TweetActor extends UntypedActor {
 
             if(containsKeyword(tweetModel.getTweet())) {
                 if(httpActor != null) {
-                    httpActor.tell(tweetModel.getTweet(), getSelf());
+                    httpActor.tell(tweetModel, getSelf());
                 }
 
                 awsSnsActor.tell(tweetModel, getSelf());

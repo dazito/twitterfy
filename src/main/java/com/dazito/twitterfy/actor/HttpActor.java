@@ -11,11 +11,15 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.dazito.twitterfy.actor.message.CloseWebSocketConnectionEvent;
 import com.dazito.twitterfy.actor.message.NewWebSocketConnectionEvent;
+import com.dazito.twitterfy.model.TweetModel;
+import com.google.gson.Gson;
 import io.vertx.core.http.ServerWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -26,6 +30,7 @@ public class HttpActor extends UntypedActor {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpActor.class);
     
     private Map<ServerWebSocket, ActorRef> actorRefMap;
+    private Gson gson;
     
     public static Props props() {
         return Props.create(HttpActor.class);
@@ -35,12 +40,14 @@ public class HttpActor extends UntypedActor {
     public void preStart() throws Exception {
         super.preStart();
         actorRefMap = new HashMap<>();
+        gson = new Gson();
     }
 
     @Override
     public void postStop() throws Exception {
         actorRefMap.clear();
         actorRefMap = null;
+        gson = null;
         super.postStop(); 
     }
 
@@ -56,13 +63,14 @@ public class HttpActor extends UntypedActor {
             final ActorRef actorRef = getContext().actorOf(WebSocketActor.props(ws));
             actorRefMap.put(ws, actorRef);
         }
-        else if(message instanceof String) {
-            final String msg = (String) message;
+        else if(message instanceof TweetModel) {
+            final TweetModel tweetModel = (TweetModel) message;
+            final String tweetModelJson = gson.toJson(tweetModel, TweetModel.class);
 
             // Let each WebSocketActor push down the message to the client
             actorRefMap
                     .keySet()
-                    .forEach(serverWebSocket -> actorRefMap.get(serverWebSocket).tell(msg, getSelf()));
+                    .forEach(serverWebSocket -> actorRefMap.get(serverWebSocket).tell(tweetModelJson, getSelf()));
         }
         else if(message instanceof CloseWebSocketConnectionEvent) {
             final CloseWebSocketConnectionEvent event = (CloseWebSocketConnectionEvent) message;
