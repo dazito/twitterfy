@@ -25,6 +25,9 @@ public final class TwitterfyConfiguration {
     private static final String AWS_SNS_TOPIC_ARN = "aws.sns.topic-arn";
     private static final String AWS_SNS_ACTIVE = "aws.sns.active";
     private static final String AWS_SNS_REGION = "aws.sns.region";
+    private static final String AWS_SQS_ACTIVE = "aws.sqs.active";
+    private static final String AWS_SQS_REGION= "aws.sqs.region";
+    private static final String AWS_SQS_QUEUE_URL = "aws.sqs.queue-url";
     private static final String AWS_SECRET_KEY = "aws.secret-key";
     private static final String AWS_ACCESS_KEY = "aws.access-key";
     private static final String SCHEDULER_ACTIVE = "scheduler.active";
@@ -56,6 +59,9 @@ public final class TwitterfyConfiguration {
     private String awsSnsTopicArn;
     private String awsSnsRegion;
     private boolean awsSnsActive;
+    private String awsSqsRegion;
+    private String awsSqsQueueUrl;
+    private boolean awsSqsActive;
     private String awsSecretKey;
     private String awsAccessKey;
     private boolean isSchedulerActivated;
@@ -99,6 +105,9 @@ public final class TwitterfyConfiguration {
         awsSnsTopicArn = properties.getProperty(AWS_SNS_TOPIC_ARN, "");
         awsSnsRegion = properties.getProperty(AWS_SNS_REGION, "");
         awsSnsActive = Boolean.parseBoolean(properties.getProperty(AWS_SNS_ACTIVE, "false"));
+        awsSqsRegion = properties.getProperty(AWS_SQS_REGION, "");
+        awsSqsQueueUrl = properties.getProperty(AWS_SQS_QUEUE_URL, "");
+        awsSqsActive = Boolean.parseBoolean(properties.getProperty(AWS_SQS_ACTIVE, "false"));
         awsAccessKey = properties.getProperty(AWS_ACCESS_KEY, "");
         awsSecretKey = properties.getProperty(AWS_SECRET_KEY, "");
         isSchedulerActivated = Boolean.parseBoolean(properties.getProperty(SCHEDULER_ACTIVE, "false"));
@@ -256,5 +265,17 @@ public final class TwitterfyConfiguration {
 
     public boolean isEmailActive() {
         return emailActive;
+    }
+
+    public String getAwsSqsRegion() {
+        return awsSqsRegion;
+    }
+
+    public boolean isAwsSqsActive() {
+        return awsSqsActive;
+    }
+
+    public String getAwsSqsQueueUrl() {
+        return awsSqsQueueUrl;
     }
 }

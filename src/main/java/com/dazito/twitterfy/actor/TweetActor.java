@@ -26,15 +26,17 @@ public class TweetActor extends UntypedActor {
     private Set<String> filterKeywords;
     private ActorRef httpActor;
     private ActorRef awsSnsActor;
+    private ActorRef awsSqsActor;
     private ActorRef gcPubsubActor;
     private ActorRef databaseActor;
 
-    public static Props props(ActorRef awsSnsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
-        return Props.create(TweetActor.class, awsSnsActor, gcPubsubActor, databaseActor);
+    public static Props props(ActorRef awsSnsActor, ActorRef awsSqsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
+        return Props.create(TweetActor.class, awsSnsActor, awsSqsActor, gcPubsubActor, databaseActor);
     }
 
-    public TweetActor(ActorRef awsSnsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
+    public TweetActor(ActorRef awsSnsActor, ActorRef awsSqsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
         this.awsSnsActor = awsSnsActor;
+        this.awsSqsActor = awsSqsActor;
         this.gcPubsubActor = gcPubsubActor;
         this.databaseActor = databaseActor;
     }
@@ -71,6 +73,7 @@ public class TweetActor extends UntypedActor {
                 }
 
                 awsSnsActor.tell(tweetModel, getSelf());
+                awsSqsActor.tell(tweetModel, getSelf());
                 gcPubsubActor.tell(tweetModel, getSelf());
                 databaseActor.tell(tweetModel, getSelf());
             }
