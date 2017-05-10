@@ -13,12 +13,13 @@ public final class AkkaUtil {
 
     private AkkaUtil() {}
 
-    public static ActorRef configureRouter(Class actorClass, String actorName, ActorRef awsSns, ActorRef gcPubsub, ActorRef db) {
+    public static ActorRef configureTwitterRouter(Class actorClass, String actorName, ActorRef awsSns, ActorRef awsSqs, ActorRef gcPubsub, ActorRef db) {
         // Create actor system on startup
         final ActorSystem actorSystem = ActorSystemContainer.getInstance().getActorSystem();
 
         return actorSystem.actorOf(
-                FromConfig.getInstance().props(Props.create(actorClass, awsSns, gcPubsub, db)), actorName
+                FromConfig.getInstance().props(Props.create(actorClass, awsSns, awsSqs, gcPubsub, db)),
+                actorName
         );
     }
 

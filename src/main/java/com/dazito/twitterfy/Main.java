@@ -49,10 +49,11 @@ public class Main {
 
         // Create actor system on startup
         ActorRef awsSnsActor = AkkaUtil.configureRouter(AwsSnsActor.class, Constant.AWS_SNS_ROUTER_NAME);
+        ActorRef awsSqsActor = AkkaUtil.configureRouter(AwsSqsActor.class, Constant.AWS_SQS_ROUTER_NAME);
         ActorRef gcPubsubActor = AkkaUtil.configureRouter(GcPubsubActor.class, Constant.GC_PUBSUB_ROUTER_NAME);
         ActorRef databaseActor = AkkaUtil.configureRouter(DatabaseActor.class, Constant.DATABASE_ROUTER_NAME);
 
-        final ActorRef tweeterRouter = AkkaUtil.configureRouter(TweetActor.class, Constant.TWEET_ROUTER_NAME, awsSnsActor, gcPubsubActor, databaseActor);
+        final ActorRef tweeterRouter = AkkaUtil.configureTwitterRouter(TweetActor.class, Constant.TWEET_ROUTER_NAME, awsSnsActor, awsSqsActor, gcPubsubActor, databaseActor);
 
         final Publisher publisher = new TwitterProducer(
                 ActorSystemContainer.getInstance().getActorSystem(), tweeterRouter
