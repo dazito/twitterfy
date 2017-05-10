@@ -2,7 +2,8 @@
 Subscribe to and get notified when someone tweets your keywords. This is a work in progress, pull requests are welcome.
  - Get notified via:
    - Web sockets
-   - Amazon SNS service
+   - Amazon SNS
+   - Amazon SQS
    - Google Cloud Pubsub
    - More services/technologies to come
  - Persist tweets on
