@@ -1,15 +1,13 @@
 package com.dazito.twitterfy.aws.sqs;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.dazito.twitterfy.Publisher;
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
 import com.dazito.twitterfy.model.TweetModel;
+import com.dazito.twitterfy.util.AwsUtil;
 import com.google.gson.Gson;
 
 /**
@@ -21,17 +19,11 @@ public class SqsPublisher implements Publisher {
     private String region = TwitterfyConfiguration.getConfiguration().getAwsSnsRegion();
     private final String queueUrl;
     private final AWSCredentialsProvider awsCredentialsProvider;
-    private final String accessKey;
-    private final String secretKey;
     private final Gson gson;
 
     public SqsPublisher() {
         gson = new Gson();
-        accessKey = TwitterfyConfiguration.getConfiguration().getAwsAccessKey();
-        secretKey = TwitterfyConfiguration.getConfiguration().getAwsSecretKey();
-
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-        awsCredentialsProvider = new AWSStaticCredentialsProvider(credentials);
+        awsCredentialsProvider = AwsUtil.awsCredentialsProvider();
 
         amazonSQSAsync = AmazonSQSAsyncClientBuilder
                 .standard()
