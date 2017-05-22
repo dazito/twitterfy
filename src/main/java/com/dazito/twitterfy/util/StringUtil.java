@@ -4,10 +4,7 @@ import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by daz on 17/04/2017.
@@ -48,5 +45,34 @@ public final class StringUtil {
         }
 
         return fetchedLinkList;
+    }
+
+    public static String stringArrayToString(String[] strArray, String separator) {
+        final StringBuilder stringBuilder = new StringBuilder();
+
+        for(int i = 0; i < strArray.length; i++) {
+            stringBuilder.append(strArray[i]);
+
+            if(i != strArray.length - 1) {
+                stringBuilder.append(separator);
+            }
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public static String stringSetToString(Set<String> strSet, String separator) {
+        final StringBuilder stringBuilder = new StringBuilder();
+
+        final Iterator<String> setIterator = strSet.iterator();
+        while(setIterator.hasNext()) {
+            stringBuilder.append(setIterator.next());
+
+            if(setIterator.hasNext()) {
+                stringBuilder.append(separator);
+            }
+        }
+
+        return stringBuilder.toString();
     }
 }
