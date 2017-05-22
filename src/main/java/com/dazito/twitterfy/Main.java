@@ -1,6 +1,7 @@
 package com.dazito.twitterfy;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import com.dazito.twitterfy.actor.*;
 import com.dazito.twitterfy.configuration.TwitterfyConfiguration;
 import com.dazito.twitterfy.http.HttpServer;
@@ -13,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by daz on 30/03/2017.
@@ -34,30 +37,41 @@ public class Main {
             return;
         }
 
-        // Setup and start the HTTP server - Websocket
-        HttpServer httpServer = new HttpServerImpl();
-        httpServer.start();
-
         final String key = TwitterfyConfiguration.getConfiguration().getTwitterApiKey();
         final String secret = TwitterfyConfiguration.getConfiguration().getTwitterApiSecret();
         final String token = TwitterfyConfiguration.getConfiguration().getTwitterApiToken();
         final String tokenSecret = TwitterfyConfiguration.getConfiguration().getTwitterApiTokenSecret();
         final String[] keywords = TwitterfyConfiguration.getConfiguration().getSubscribeKeywords();
 
+        // Create Actor System
+        final ActorSystem actorSystem = ActorSystemContainer.getInstance().getActorSystem();
+
         // Start scheduler actor
-        ActorSystemContainer.getInstance().getActorSystem().actorOf(SchedulerActor.props(), "scheduler");
+        actorSystem.actorOf(SchedulerActor.props(), "scheduler");
 
         // Create actor system on startup
+        ActorRef httpActor = actorSystem.actorOf(HttpActor.props(), HttpActor.class.getSimpleName());
         ActorRef awsSnsActor = AkkaUtil.configureRouter(AwsSnsActor.class, Constant.AWS_SNS_ROUTER_NAME);
         ActorRef awsSqsActor = AkkaUtil.configureRouter(AwsSqsActor.class, Constant.AWS_SQS_ROUTER_NAME);
         ActorRef gcPubsubActor = AkkaUtil.configureRouter(GcPubsubActor.class, Constant.GC_PUBSUB_ROUTER_NAME);
         ActorRef databaseActor = AkkaUtil.configureRouter(DatabaseActor.class, Constant.DATABASE_ROUTER_NAME);
+        ActorRef dynamoDbActor = AkkaUtil.configureRouter(DynamoDbActor.class, Constant.AWS_DYNAMO_DB_ROUTER_NAME);
 
-        final ActorRef tweeterRouter = AkkaUtil.configureTwitterRouter(TweetActor.class, Constant.TWEET_ROUTER_NAME, awsSnsActor, awsSqsActor, gcPubsubActor, databaseActor);
+        List<ActorRef> actorRefList = new ArrayList<>();
+        actorRefList.add(httpActor);
+        actorRefList.add(awsSnsActor);
+        actorRefList.add(awsSqsActor);
+        actorRefList.add(gcPubsubActor);
+        actorRefList.add(databaseActor);
+        actorRefList.add(dynamoDbActor);
 
-        final Publisher publisher = new TwitterProducer(
-                ActorSystemContainer.getInstance().getActorSystem(), tweeterRouter
-        );
+        // Setup and start the HTTP server - Websocket
+        HttpServer httpServer = new HttpServerImpl(httpActor);
+        httpServer.start();
+
+        final ActorRef tweeterRouter = AkkaUtil.configureRouter(TweetActor.class, Constant.TWEET_ROUTER_NAME, actorRefList);
+
+        final Publisher publisher = new TwitterProducer(tweeterRouter);
 
         final TwitterClient twitterClient = new TwitterClient.Builder()
                 .key(key)
@@ -73,8 +87,29 @@ public class Main {
             twitterClient.filter();
         }
         catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not subscribe to Twitter's feed - reason: {}", e.getMessage());
         }
+    }
+
+    private static List<ActorRef> setUpActors() {
+        // Start scheduler actor
+//        ActorSystemContainer.getInstance().getActorSystem().actorOf(SchedulerActor.props(), "scheduler");
+
+        // Create actor system on startup
+        ActorRef awsSnsActor = AkkaUtil.configureRouter(AwsSnsActor.class, Constant.AWS_SNS_ROUTER_NAME);
+        ActorRef awsSqsActor = AkkaUtil.configureRouter(AwsSqsActor.class, Constant.AWS_SQS_ROUTER_NAME);
+        ActorRef gcPubsubActor = AkkaUtil.configureRouter(GcPubsubActor.class, Constant.GC_PUBSUB_ROUTER_NAME);
+        ActorRef databaseActor = AkkaUtil.configureRouter(DatabaseActor.class, Constant.DATABASE_ROUTER_NAME);
+        ActorRef dynamoDbActor = AkkaUtil.configureRouter(DynamoDbActor.class, Constant.AWS_DYNAMO_DB_ROUTER_NAME);
+        
+        List<ActorRef> actorRefList = new ArrayList<>();
+        actorRefList.add(awsSnsActor);
+        actorRefList.add(awsSqsActor);
+        actorRefList.add(gcPubsubActor);
+        actorRefList.add(databaseActor);
+        actorRefList.add(dynamoDbActor);
+        
+        return actorRefList;
     }
 
 

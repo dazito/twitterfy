@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,21 +25,15 @@ public class TweetActor extends UntypedActor {
 
     private DbClient dbClient;
     private Set<String> filterKeywords;
+    private List<ActorRef> actorRefList;
     private ActorRef httpActor;
-    private ActorRef awsSnsActor;
-    private ActorRef awsSqsActor;
-    private ActorRef gcPubsubActor;
-    private ActorRef databaseActor;
 
-    public static Props props(ActorRef awsSnsActor, ActorRef awsSqsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
-        return Props.create(TweetActor.class, awsSnsActor, awsSqsActor, gcPubsubActor, databaseActor);
+    public static Props props(List<ActorRef> actorRefList) {
+        return Props.create(TweetActor.class, actorRefList);
     }
 
-    public TweetActor(ActorRef awsSnsActor, ActorRef awsSqsActor, ActorRef gcPubsubActor, ActorRef databaseActor) {
-        this.awsSnsActor = awsSnsActor;
-        this.awsSqsActor = awsSqsActor;
-        this.gcPubsubActor = gcPubsubActor;
-        this.databaseActor = databaseActor;
+    public TweetActor(List<ActorRef> actorRefList) {
+        this.actorRefList = actorRefList;
     }
 
     @Override
@@ -48,7 +43,7 @@ public class TweetActor extends UntypedActor {
         dbClient = new DbClient();
         filterKeywords = TwitterfyConfiguration.getConfiguration().getFilterKeywords();
 
-        context().actorSelection(HTTP_ACTOR_PATH).tell(new Identify(HTTP_ACTOR_IDENTIFY_ID), getSelf());
+//        context().actorSelection(HTTP_ACTOR_PATH).tell(new Identify(HTTP_ACTOR_IDENTIFY_ID), getSelf());
         LOGGER.info("*** Tweet Actor Created  ***");
     }
 
@@ -68,20 +63,21 @@ public class TweetActor extends UntypedActor {
             final TweetModel tweetModel = (TweetModel) message;
 
             if(containsKeyword(tweetModel.getTweet())) {
-                if(httpActor != null) {
-                    httpActor.tell(tweetModel, getSelf());
-                }
-
-                awsSnsActor.tell(tweetModel, getSelf());
-                awsSqsActor.tell(tweetModel, getSelf());
-                gcPubsubActor.tell(tweetModel, getSelf());
-                databaseActor.tell(tweetModel, getSelf());
+                actorRefList.forEach(actor -> {
+                    actor.tell(tweetModel, getSelf());
+                });
             }
         }
         else if(message instanceof ActorIdentity) {
             ActorIdentity actorIdentity = (ActorIdentity) message;
             if(actorIdentity.correlationId().equals(HTTP_ACTOR_IDENTIFY_ID)) {
                 httpActor = actorIdentity.getRef();
+
+                if (actorRefList.contains(httpActor)) {
+                    return;
+                }
+
+                actorRefList.add(httpActor);
             }
         }
         else {
