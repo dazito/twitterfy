@@ -1,0 +1,33 @@
+<html>
+<head><title>Web Socket Test</title></head>
+<body>
+<script>
+var socket;
+
+if (window.WebSocket) {
+    socket = new WebSocket("ws://localhost:8080/api/ws/subscribe");
+    socket.onmessage = function (event) {
+        var json = JSON.parse(event.data);
+
+        var div = document.getElementById( 'notification' );
+
+        div.insertAdjacentHTML( 'beforeend', '<p><strong>' + json.screenName + '</strong><br>' + json.tweet + '</p>');
+        document.body.scrollTop = document.body.scrollHeight;
+    };
+    socket.onopen = function (event) {
+        var div = document.getElementById( 'notification' );
+        div.insertAdjacentHTML( 'beforeend', "<p> Connected to the server!</p> " );
+    };
+    socket.onclose = function (event) {
+        var div = document.getElementById( 'notification' );
+        div.insertAdjacentHTML( 'beforeend', "<p><strong>Disconnected from the server!</strong></p>" );
+    };
+} else {
+    alert("Your browser does not support Websockets.");
+    // TODO: Fallback to server side events
+}
+</script>
+    <div id="notification" align="left">
+    </div>
+    </body>
+    </html>
