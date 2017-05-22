@@ -12,4 +12,5 @@ public final class Constant {
     public static final String GC_PUBSUB_ROUTER_NAME = "gc-pubsub-router";
     public static final String DATABASE_ROUTER_NAME = "database-router";
     public static final String AWS_SQS_ROUTER_NAME = "aws-sqs-router";
+    public static final String AWS_DYNAMO_DB_ROUTER_NAME = "aws-dynamo-db-router";
 }

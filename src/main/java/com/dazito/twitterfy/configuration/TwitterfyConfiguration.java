@@ -30,6 +30,9 @@ public final class TwitterfyConfiguration {
     private static final String AWS_SQS_QUEUE_URL = "aws.sqs.queue-url";
     private static final String AWS_SECRET_KEY = "aws.secret-key";
     private static final String AWS_ACCESS_KEY = "aws.access-key";
+    private static final String AWS_DYNAMO_DB_REGION = "aws.dynamodb.region";
+    private static final String AWS_DYNAMO_DB_TABLE = "aws.dynamodb.table";
+    private static final String AWS_DYNAMO_DB_ACTIVE = "aws.dynamodb.active";
     private static final String SCHEDULER_ACTIVE = "scheduler.active";
     private static final String SCHEDULER_FREQUENCY = "scheduler.frequency";
     private static final String SCHEDULER_FREQUENCY_UNIT = "scheduler.frequency.unit";
@@ -64,6 +67,9 @@ public final class TwitterfyConfiguration {
     private boolean awsSqsActive;
     private String awsSecretKey;
     private String awsAccessKey;
+    private String awsDynamoDbRegion;
+    private String awsDynamoDbTable;
+    private boolean awsDynamoDbActive;
     private boolean isSchedulerActivated;
     private int schedulerFrequency;
     private String schedulerFrequencyUnit;
@@ -108,6 +114,9 @@ public final class TwitterfyConfiguration {
         awsSqsRegion = properties.getProperty(AWS_SQS_REGION, "");
         awsSqsQueueUrl = properties.getProperty(AWS_SQS_QUEUE_URL, "");
         awsSqsActive = Boolean.parseBoolean(properties.getProperty(AWS_SQS_ACTIVE, "false"));
+        awsDynamoDbActive = Boolean.parseBoolean(properties.getProperty(AWS_DYNAMO_DB_ACTIVE, "false"));
+        awsDynamoDbRegion = properties.getProperty(AWS_DYNAMO_DB_REGION, "");
+        awsDynamoDbTable = properties.getProperty(AWS_DYNAMO_DB_TABLE, "");
         awsAccessKey = properties.getProperty(AWS_ACCESS_KEY, "");
         awsSecretKey = properties.getProperty(AWS_SECRET_KEY, "");
         isSchedulerActivated = Boolean.parseBoolean(properties.getProperty(SCHEDULER_ACTIVE, "false"));
@@ -277,5 +286,17 @@ public final class TwitterfyConfiguration {
 
     public String getAwsSqsQueueUrl() {
         return awsSqsQueueUrl;
+    }
+
+    public String getAwsDynamoDbRegion() {
+        return awsDynamoDbRegion;
+    }
+
+    public String getAwsDynamoDbTable() {
+        return awsDynamoDbTable;
+    }
+
+    public boolean isAwsDynamoDbActive() {
+        return awsDynamoDbActive;
     }
 }
