@@ -23,6 +23,7 @@ public class TweetListener implements StatusListener {
     }
 
 
+    @Override
     public void onStatus(Status status) {
         final String text = status.getText();
         final String screenName = status.getUser().getScreenName();
@@ -31,22 +32,27 @@ public class TweetListener implements StatusListener {
         publisher.publish(new TweetModel(text, screenName, createdAt));
     }
 
+    @Override
     public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
         LOGGER.info("onDeletionNotice" + statusDeletionNotice.getStatusId());
     }
 
+    @Override
     public void onTrackLimitationNotice(int i) {
 
     }
 
+    @Override
     public void onScrubGeo(long l, long l1) {
         LOGGER.info("onScrubGeo");
     }
 
+    @Override
     public void onStallWarning(StallWarning stallWarning) {
         LOGGER.info("onStallWarning: " + stallWarning.getMessage() + " | percentage: " + stallWarning.getPercentFull());
     }
 
+    @Override
     public void onException(Exception e) {
         LOGGER.info("Exception: " + e.getMessage());
     }
