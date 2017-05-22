@@ -65,12 +65,11 @@ public class HttpActor extends UntypedActor {
         }
         else if(message instanceof TweetModel) {
             final TweetModel tweetModel = (TweetModel) message;
-            final String tweetModelJson = gson.toJson(tweetModel, TweetModel.class);
 
             // Let each WebSocketActor push down the message to the client
             actorRefMap
                     .keySet()
-                    .forEach(serverWebSocket -> actorRefMap.get(serverWebSocket).tell(tweetModelJson, getSelf()));
+                    .forEach(serverWebSocket -> actorRefMap.get(serverWebSocket).tell(tweetModel, getSelf()));
         }
         else if(message instanceof CloseWebSocketConnectionEvent) {
             final CloseWebSocketConnectionEvent event = (CloseWebSocketConnectionEvent) message;
