@@ -1,7 +1,7 @@
 # twitterfy
 Connect a Tweet stream to different queues and databases.
 
-Subscribe to and get notified when someone tweets your keywords. Typical use cases are: receive sales, discount and special deals alerts, data mining, sentimental analyses and others.
+Subscribe to and get notified when someone tweets your keywords. **Typical use cases are: receive sales, discount and special deals alerts, data mining, sentimental analyses and others.**
 
 This is a work in progress, pull requests are welcome.
 
