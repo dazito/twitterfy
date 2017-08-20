@@ -27,7 +27,10 @@ public class GcPubsubActor extends UntypedActor {
     public void preStart() throws Exception {
         super.preStart();
         isActive = TwitterfyConfiguration.getConfiguration().isGcPubsubActive();
-        pubSubClient = GoogleCloudPubSubClient.defaultClient();
+
+        if(isActive) {
+            pubSubClient = GoogleCloudPubSubClient.defaultClient();
+        }
     }
 
     @Override

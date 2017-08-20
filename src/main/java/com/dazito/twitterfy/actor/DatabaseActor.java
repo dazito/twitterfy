@@ -22,14 +22,19 @@ public class DatabaseActor extends UntypedActor {
         super.preStart();
 
         isActive = TwitterfyConfiguration.getConfiguration().isDbActive();
-        dbClient = new DbClient();
+        if(isActive) {
+            dbClient = new DbClient();
+        }
+
     }
 
     @Override
     public void postStop() throws Exception {
         // Avoid connection leaks
-        dbClient.close();
-        dbClient = null;
+        if(isActive) {
+            dbClient.close();
+            dbClient = null;
+        }
 
         super.postStop();
     }

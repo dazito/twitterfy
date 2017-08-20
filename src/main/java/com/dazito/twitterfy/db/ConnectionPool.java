@@ -12,21 +12,28 @@ import java.sql.SQLException;
  */
 public class ConnectionPool {
     private static ConnectionPool connectionPool = new ConnectionPool();
+    private static final TwitterfyConfiguration twitterfyConfiguration = TwitterfyConfiguration.getConfiguration();
 
-    private final HikariDataSource dataSource;
+    private HikariDataSource dataSource;
+
 
     private ConnectionPool() {
-        final TwitterfyConfiguration configuration = TwitterfyConfiguration.getConfiguration();
-        HikariConfig config = new HikariConfig();
+        if(twitterfyConfiguration.isDbActive()) {
+            final TwitterfyConfiguration configuration = TwitterfyConfiguration.getConfiguration();
+            HikariConfig config = new HikariConfig();
 
-        config.setJdbcUrl(configuration.getConnectionPoolJdbcUrl());
-        config.setUsername(configuration.getConnectionPoolDbUsername());
-        config.setPassword(configuration.getConnectionPoolDbPassword());
+            config.setJdbcUrl(configuration.getConnectionPoolJdbcUrl());
+            config.setUsername(configuration.getConnectionPoolDbUsername());
+            config.setPassword(configuration.getConnectionPoolDbPassword());
 
-        dataSource = new HikariDataSource(config);
+            dataSource = new HikariDataSource(config);;
+        }
     }
 
     public static Connection getConnection() {
+        if(twitterfyConfiguration.isDbActive() == false) {
+            return null;
+        }
         try {
             return connectionPool.dataSource.getConnection();
         }
