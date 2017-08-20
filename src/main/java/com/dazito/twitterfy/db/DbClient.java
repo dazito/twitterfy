@@ -59,7 +59,6 @@ public class DbClient {
         }
         catch (SQLException e) {
             LOGGER.error("Could not close connection - reason: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
