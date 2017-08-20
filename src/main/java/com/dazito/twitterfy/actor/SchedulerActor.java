@@ -27,6 +27,7 @@ public class SchedulerActor extends UntypedActor {
 
     private DbClient dbClient;
     private Cancellable tick;
+    private ActorRef emailDispatcherActor;
 
     public static Props props() {
         return Props.create(SchedulerActor.class);
@@ -37,6 +38,7 @@ public class SchedulerActor extends UntypedActor {
         super.preStart();
         dbClient = new DbClient();
         boolean isActive = TwitterfyConfiguration.getConfiguration().isSchedulerActivated();
+        emailDispatcherActor = ActorSystemContainer.getInstance().getActorSystem().actorOf(EmailDispatcherActor.props());
 
         if(isActive) {
             int frequency = TwitterfyConfiguration.getConfiguration().getSchedulerFrequency();
