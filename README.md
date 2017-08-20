@@ -30,7 +30,10 @@ This is a work in progress.
 
 Run Main.class
 
+To create a fat/executable jar, run the following command in the project folder
+ - mvn clean compile assembly:single
+
 Next features:
-  - Run on a docker container
+  - ~~Run on a docker container~~
   - ~~Send email notifications~~ :: Implemented
   - ~~Publish notification to Amazon Web Services SNS - Simple Notification Service~~ :: Implemented
