@@ -1,7 +1,6 @@
 package com.dazito.twitterfy.twitter;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import com.dazito.twitterfy.Publisher;
 import com.dazito.twitterfy.model.TweetModel;
 
@@ -11,11 +10,9 @@ import com.dazito.twitterfy.model.TweetModel;
 public class TwitterProducer implements Publisher{
 
     private final ActorRef router;
-    private final ActorSystem actorSystem;
 
-    public TwitterProducer(ActorSystem actorSystem, ActorRef router) {
+    public TwitterProducer(ActorRef router) {
         this.router = router;
-        this.actorSystem = actorSystem;
     }
 
     @Override
